@@ -48,6 +48,7 @@ setupFAST_other function, set::
   FASTinfo['save_rated_torque'] = True
 
 In the specify_DLCs function, set::
+
   DLC_List = ['DLC_0_0']
 
 From the command line, navigate to the folder that contains RunOPT.py. Then, run::
