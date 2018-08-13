@@ -7,14 +7,18 @@ SurrModel-Tutorial
 ==================
 
 This tutorial will go over the basics on how to create and use a surrogate
-model to estimate the dynamic loading effects in a wind turbine optimization
+model to estimate the dynamic loading effects in a wind turbine blade optimization
+routine.
 
 Set-up
 ~~~~~~
 
 To begin, clone this branch of AeroelasticSE_. AeroelasticSE is a python wrapper
 for FAST. In addition, clone this branch of RotorSE_. RotorSE is an engineering
-model for the analysis and optimization of wind turbine rotors. Finally, compile
+model for the analysis and optimization of wind turbine rotors.
+Both AeroelasticSE and RotorSE are dependent on a number of sub-packages, so
+make sure these are installed correctly.
+Finally, compile
 a FAST executable. Instructions on how to do this can be found in our previous
 tutorial_.
 
@@ -28,13 +32,15 @@ Specifications to train surrogate model
 Before we can train points to use in the surrogate model, we need to calculate
 the wind turbine torque at rated wind speed.
 
-In runOPT.py, specify::
+Within the RotorSE directory, locate the script runOPT.py. In runOPT.py, specify::
 
-  FASTinfo['calc_fixed_DEMs']
+  FASTinfo['calc_fixed_DEMs'] = True
 
-Make sure that all the other options in that block are set to False. Set the
-description to some appropriate string, such as calc_tq.
+Make sure that all the other options in that block are set to False.
+In addition, set the
+description variable to some appropriate string, such as calc_tq.
 
+Within the RotorSE directory, locate the script FAST_util.py.
 There are a few things that need to be specified in FAST_util.py. First,
 make sure that all the checks in setupFAST_checks are set to False. In the
 setupFAST_other function, set::
@@ -44,11 +50,11 @@ setupFAST_other function, set::
 In the specify_DLCs function, set::
   DLC_List = ['DLC_0_0']
 
-From the command line, run::
+From the command line, navigate to the folder that contains RunOPT.py. Then, run::
 
   python RunOPT.py
 
-This command should create a file contains the torque at rated speed.
+This command should create a file that contains the torque at rated speed.
 We can now set up the training point calculations. In runOPT.py, specify::
 
   FASTinfo['calc_surr_model'] = True
@@ -57,14 +63,15 @@ Make sure that all the other options in that block are set to False. Set the
 description to some appropriate string, such as test_surrmodel.
 
 There are a few things that need to be specified in FAST_util.py. First,
-make sure that all the checks in setupFAST_checks are set to False. You will
-most likely want to set::
+make sure that all the checks in setupFAST_checks are set to False.
+Next, specify the locations of the virtual strain gages used in the FAST routine.
+You can do this by setting::
 
   FASTinfo['sgp'] = [1, 2, 3]
 
 This means that for each wind input file, FAST will run three times. The training
 will take longer, but this way there won't be any interpolated data used to train
-the surrogate model.
+the surrogate model and will result in a more accurate surrogate model.
 
 In the specify_DLCs function, make sure that::
 
@@ -75,6 +82,11 @@ In the specify_DLCs function, make sure that::
 when training a full surrogate.
 However, for test purposes, you will want to use a small subset
 of design load cases to make sure that it is working properly without taking too long.
+An example of a test set is::
+
+  DLC_List = ['DLC_1_2', 'DLC_1_3', 'DLC_6_1', 'DLC_6_3']
+  FASTinfo['rand_seeds'] = np.linspace(1, 1, 1)
+  FASTinfo['mws'] = np.linspace(11, 11, 1)
 
 In the create_surr_model_params function, specify how many points we will attempt
 to train in the surrogate model. For example, if we want to train 1000, points::
@@ -85,13 +97,13 @@ Also, make sure that::
 
   FASTinfo['training_point_dist'] = 'lhs'
 
-An example of 100 points being specified with linear hypercube spacing in two 
+An example of 100 points being specified with linear hypercube spacing in two
 directions is shown below.
 
 .. image:: ./lhs.png
 
 
-Initial development supported a full factorial option (linear) as well as
+.. note:: Initial work supported a full factorial option (linear) as well as
 linear hypercube spacing (lhs), but functionality has only been developed for lhs.
 
 In the setupFAST function, specify which reference turbine design template will be
@@ -103,12 +115,15 @@ Note that if a WindPACT reference turbine is used, also set::
 
   FASTinfo['set_chord_twist'] = True
 
-We can now train the surrogate model. An example of doing this would be to run::
+We can now train the surrogate model. An example of doing this would be to
+include the following lines in a batch script::
 
-  python runOPT.py 0
+  #SBATCH --array=1-999 # job array size
+  echo ${SLURM_ARRAY_TASK_ID}
+  python runOPT.py ${SLURM_ARRAY_TASK_ID}
 
-on the supercomputer, where the last argument changes in a for-loop. The size of
-the for-loop will depend on the number of training points. Once all the points
+on the supercomputer. The size of
+the array will depend on the number of training points. Once all the points
 have been trained, use the function combine_results
 (in the script FAST_Files/combine_sm_results.py). This is needed if only one wind turbine
 is being used to train the surrogate model, or a number of wind turbines. Set
