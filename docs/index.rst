@@ -104,8 +104,7 @@ directions is shown below.
 .. image:: ./lhs.png
 
 
-.. note:: Initial work supported a full factorial option (linear) as well as
-linear hypercube spacing (lhs), but functionality has only been developed for lhs.
+.. note:: Initial work supported a full factorial option (linear) as well as linear hypercube spacing (lhs), but functionality has only been developed for lhs.
 
 In the setupFAST function, specify which reference turbine design template will be
 used. For example, if we want to use the WindPACT 5.0 MW reference turbine::
