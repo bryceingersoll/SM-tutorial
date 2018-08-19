@@ -28,7 +28,7 @@ the data that is provided in this repository. The steps to do this are covered i
 procedure depends on the surrogate-modeling-toolbox_. This will need to be downloaded and
 installed beforehand.
 
-_surrogate-modeling-toolbox: https://smt.readthedocs.io/en/latest/
+.. _surrogate-modeling-toolbox: https://smt.readthedocs.io/en/latest/
 
 First, in the script run.py, set::
 
@@ -56,7 +56,7 @@ values at any point along the length of the blade. Additional information about 
 can be found here. In the get_bladelength function (also in FAST_util.py), set the blade length.
 In the choose_wnd_dir function, set the turbulence intensity and turbine class.
 
-..Akima: https://github.com/andrewning/akima
+.. _Akima: https://github.com/andrewning/akima
 
 Check that all of the options in setupFAST_checks (function in FAST_util.py)
 are set to False. In addition, in the function setupFAST_other, set::
