@@ -52,7 +52,7 @@ In the setupFAST function in FAST_util.py, set::
 Next, in the initialize_dv function, set the control point values of the chord and twist
 distributions. The control points are equally spaced from the root of the blade
 to the tip, and define Akima_ splines which are used to determine the chord and twist
-values at any point along the length of the blade. Additional information about Akima splines
+values at any point along the length of the blade. Additional information about Akima_ splines
 can be found here. In the get_bladelength function (also in FAST_util.py), set the blade length.
 In the choose_wnd_dir function, set the turbulence intensity and turbine class.
 
